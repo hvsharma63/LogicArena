@@ -1,0 +1,42 @@
+<% include ./partials/header.ejs %>
+<% include ./partials/navbar.ejs %>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title"> <strong> Question: </strong><%= question.title %></div>
+            <%= question.description %>
+        </div>
+        <div class="card-footer text-muted">
+            Posted by <b> <%= question.user.username %> </b> on <i> <%= question.createdAt.toDateString() %></i>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <hr>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-8">
+           <% question.answers.forEach(function (answer) { %>
+            <dl class="row">
+                <dt class="col-sm-3"><%= answer.user.username.toUpperCase() %>: </dt>
+                <dd class="col-sm-9"><%= answer.description %></dd>
+            </dl>
+            <% }) %>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div id="comment-section">
+                <form action="/post/ans-to-ques/<%= question._id %> %>" method="post">
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1">Answer: </label>
+                        <textarea class="form-control" name="ans[description]" rows="3"></textarea>
+                    </div>
+                    <button class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<% include ./partials/footer.ejs %>

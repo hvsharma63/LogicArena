@@ -1,0 +1,23 @@
+<% include ./partials/header.ejs %>
+<% include ./partials/navbar.ejs %>
+<div class="container mt-5">
+    <%if (questions.length > 0) { %>
+    <% questions.forEach(function (question) { %>
+    <div class="card my-4">
+        <div class="card-body">
+            <a href="/home/question/<%= question._id %>" class="card-link"><%= question.title %></a>
+            <footer class="blockquote-footer ml-auto">
+                <%= question.user.username %> posted this on <cite
+                    title="Source Title"><%= question.createdAt.toDateString() %></cite>
+            </footer>
+        </div>
+    </div>
+    <% }) %>
+    <% }else{ %>
+    <div class="alert alert-primary" role="alert">
+        <strong>Sorry! Check later</strong>
+        Currently, there are no questions asked :)
+    </div>
+    <% }%>
+</div>
+<% include ./partials/footer.ejs %>

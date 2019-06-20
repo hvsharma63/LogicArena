@@ -1,0 +1,35 @@
+<% include ./partials/header.ejs %>
+<% include ./partials/navbar.ejs %>
+<div class="container mt-5">
+    <div class="row mt-5">
+        <div class="col-md-3">
+            <h5>Recent Questions</h5>
+            <div class="list-group">
+                <% posts.forEach(function(post){ %>
+                <a href="/home/question/<%= post._id %>"
+                    class="list-group-item list-group-item-action"><%= post.title %></a>
+                <% }) %>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div id="comment-section">
+                <form action="/post/ask-ques" method="post">
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Title: </label>
+                        <input type="text" class="form-control" name="ques[title]">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1">Question: </label>
+                        <textarea class="form-control" name="ques[description]" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<% include ./partials/footer.ejs %>
