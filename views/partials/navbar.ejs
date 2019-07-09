@@ -8,7 +8,9 @@
         <div class="navbar-nav mx-auto">
             <a class="nav-item nav-link active" href="/home">Home <span class="sr-only">(current)</span></a>
             <a class="nav-item nav-link" href="/home/ask-question">Ask Others</a>
-            <% if(loggedUser != null){ %>
+            <a class="nav-item nav-link" href="/upload">Upload File to S3</a>
+            <a class="nav-item nav-link" href="/contact">Contact US</a>
+            <% if(typeof loggedUser == 'object'){ %>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
@@ -23,7 +25,6 @@
             <% }else{ %>
                 <a class="nav-item nav-link" href="#">Not Logged In</a>
             <% } %>
-
         </div>
     </div>
 </nav>

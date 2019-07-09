@@ -1,9 +1,15 @@
+// Declarations
 const express = require("express");
 const mongoose = require('mongoose');
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const LocalStratergy = require('passport-local');
+const fileUpload = require('express-fileupload');
+const AWS = require('aws-sdk');
+const nodemailer = require("nodemailer");
 const passportLocalMongoose = require("passport-local-mongoose");
+const ses = new AWS.SES();
+
 const ejs = require("ejs");
 // const methodOverride = require('method-override')
 // const request = require("request");
@@ -41,6 +47,7 @@ app.use(require("express-session")({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(fileUpload());
 
 passport.use(new LocalStratergy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -124,6 +131,7 @@ app.get('/home/question/:id', isLoggedIn, (req, res) => {
             if (!question) {
                 console.log("message")
             } else {
+                console.log(question)
                 res.render("single", { question: question, loggedUser: req.user })
             }
         }
@@ -159,41 +167,88 @@ app.post('/post/ask-ques', isLoggedIn, (req, res) => {
 
 // POST the comment-form in Single Page
 app.post('/post/ans-to-ques/:qid', (req, res) => {
-    // console.log(req.params.qid);
+    console.log(req.params.qid);
     req.body.ans.user = req.user._id;
     Answer.create(req.body.ans, (err, ans) => {
         if (err) {
             console.log(`Error: ` + err)
         } else {
-            Post.findById(req.params.qid, (err, post) => {
-                if (err) {
-                    console.log(`Error: ` + err)
-                } else {
-                    if (!post) {
-                        console.log("message")
+            Post.findOneAndUpdate({
+                _id: req.params.qid,
+            }, {
+                    answers: ans._id,
+                }, (err, post) => {
+                    if (err) {
+                        console.log(`Error: ` + err)
                     } else {
-                        post.answers.push(ans);
-                        post.save();
                         res.redirect("/home/question/" + req.params.qid);
                     }
-                }
-            });
-            // Post.findOneAndUpdate({
-            //     _id: req.params.qid,
-            // }, {
-            //         answers: ans._id,
-            //     }, (err, post) => {
-            //         if (err) {
-            //             console.log(`Error: ` + err)
-            //         } else {
-            //             res.redirect("/home/question/" + req.params.qid);
-            //         }
-            //     });
+                });
         }
     });
 
 });
 
+// GET App-to-S3
+app.get('/upload', (req, res) => {
+    res.render('file-upload-to-aws', { loggedUser: req.user });
+});
+
+// POST App-to-S3
+app.post('/uploadToS3', (req, res) => {
+    let file = req.files.tobeUploadedFile; // the uploaded file object
+    let s3bucket = new AWS.S3({
+        accessKeyId: 'AKIAZYZB4CR66327U7PX',
+        secretAccessKey: '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',
+        Bucket: 'hvs-first-bucket',
+    });
+    s3bucket.createBucket(() => {
+        let params = {
+            Bucket: 'hvs-first-bucket',
+            Key: file.name,
+            Body: file.data,
+        };
+        s3bucket.upload(params, (err, data) => {
+            if (err) {
+                console.log('error in callback');
+                console.log(err);
+                res.render('file-upload-to-aws', { error: err, loggedUser: req.user })
+            } else {
+                res.render('file-upload-to-aws', { success: data, loggedUser: req.user })
+            }
+        });
+    });
+});
+
+app.get('/contact', (req, res) => {
+    res.render('contact-form');
+});
+
+app.post('/post-contact-us', (req, res) => {
+    console.log(req.body);
+    AWS.config = {
+        accessKeyId: 'AKIAZYZB4CR66327U7PX',
+        secretAccessKey: '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'
+    };
+
+    const lambda = new AWS.Lambda({
+        region: 'us-east-1',
+        apiVersion: '2015-03-31'
+    });
+
+    lambda.invoke({
+        FunctionName: 'sendEmailToVerifiedUsers',
+        Payload: JSON.stringify({ "email": req.body.email, "body": req.body.body })
+    }, (err, data) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log(data); 
+
+        }
+    });
+
+});
 // Server
 app.listen(4000, () => {
     console.log('Server started on 4000');

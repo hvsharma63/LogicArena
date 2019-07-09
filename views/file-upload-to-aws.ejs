@@ -1,0 +1,47 @@
+<% include ./partials/header.ejs %>
+<% include ./partials/navbar.ejs %>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-9">
+            <div id="comment-section">
+                <h2>File Upload to S3 Using Node.JS</h2>
+                <form action="/uploadToS3" method="post" enctype='multipart/form-data'>
+                    <div class="form-group">
+                      <label>File</label>
+                      <input type="file" class="form-control-file" name="tobeUploadedFile" placeholder="Choose the file">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>    
+    </div>
+    <%if (typeof success == 'object') { %>
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="alert alert-success" role="alert">
+                    <strong><%= success.Key %> Uploaded Successfully</strong>
+                    <p>The Download Link is
+                        <a href="#" class="alert-link"><%= success.Location %></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    <% } %>
+    <%if (typeof error == 'object') { %>
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="alert alert-danger" role="alert">
+                    <strong><%= error.Key %> not uploaded</strong>
+                    <p>Something went wrong, Error: 
+                        <a href="#" class="alert-link"><%= error.Location %></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+<% include ./partials/footer.ejs %>
